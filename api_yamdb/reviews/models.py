@@ -1,5 +1,7 @@
 from django.db import models
-from users.models import User
+from django.contrib.auth import get_user_model #Думаю тут нужно создать кастомную модель в отдельном приложении
+
+User = get_user_model()
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -14,14 +16,13 @@ class Review(models.Model):
     )
     score = models.IntegerField(
         'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)],
-        help_text="Оцените от 1 до 10", verbose_name="Оценка",)
+        help_text="Оцените от 1 до 10",)
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
+        Title, on_delete=models.CASCADE, related_name='reviews') #Тайтл надо будет дописать
 
     class Meta:
         ordering = ['id']
         verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'], name='unique_review')
