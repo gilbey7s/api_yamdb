@@ -23,3 +23,15 @@ class CustomUser(AbstractUser):
     role = models.CharField(_("user role"), max_length=16, choices=DICT_ROLE, default=USER, blank=True,)
     confirmation_code = models.IntegerField(_("code"), default=0,)
     username = models.CharField(_("username"), validators=(validate_me,), unique=True, max_length=150,)
+
+    @property
+    def is_user(self):
+        return self.role == DICT_ROLE[USER]
+
+    @property
+    def is_admin(self):
+        return self.role == DICT_ROLE[ADMIN]
+
+    @property
+    def is_moderator(self):
+        return self.role == DICT_ROLE[MODERATOR]

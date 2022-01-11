@@ -7,10 +7,13 @@ import random
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import CustomUser
 from .serializers import SignupSerializer, CustomUsersSerializer, TokenSerializer
+from .permission import IsAdmin
+from .pagination import Pagination
 
 
 class APIsignup(APIView):
@@ -57,4 +60,7 @@ class APIgetToken(APIView):
 class APIusers(ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUsersSerializer
+    pagination_class = Pagination
+    # permission_classes = (IsAdmin,)
+
     
