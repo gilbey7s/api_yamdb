@@ -1,8 +1,22 @@
-<<<<<<< HEAD
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
+from rest_framework.viewsets import  ModelViewSet
+from django.core.mail import send_mail
+import random 
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..reviews.models import Title, Genre, Category
-from .serializers import TitleSerializer, CategorySerializer, GenreSerializer
+from reviews.models import CustomUser, Title, Genre, Category
+from .serializers import (
+                    TitleSerializer, CategorySerializer,
+                    GenreSerializer, SignupSerializer, 
+                    CustomUsersSerializer, TokenSerializer
+    )
+from .permission import IsAdmin
+from .pagination import Pagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -18,30 +32,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
-
-
-
-
-
-
-=======
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
-from rest_framework.viewsets import  ModelViewSet
-from django.core.mail import send_mail
-import random 
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-
-
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from reviews.models import CustomUser
-from .serializers import SignupSerializer, CustomUsersSerializer, TokenSerializer
-from .permission import IsAdmin
-from .pagination import Pagination
 
 
 class APIsignup(APIView):
@@ -89,7 +79,4 @@ class APIusers(ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUsersSerializer
     pagination_class = Pagination
-    # permission_classes = (IsAdmin,)
-
-    
->>>>>>> feature/users
+    permission_classes = (IsAdmin,)

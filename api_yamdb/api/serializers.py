@@ -1,7 +1,5 @@
 from rest_framework import serializers
-
-<<<<<<< HEAD
-from ..reviews.models import Title, Genre, Category
+from reviews.models import CustomUser, Title, Genre, Category
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -20,9 +18,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Category
-
-=======
-from reviews.models import CustomUser
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -43,4 +38,3 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('username', 'confirmation_code')
->>>>>>> feature/users
