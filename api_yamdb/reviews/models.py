@@ -1,9 +1,12 @@
-<<<<<<< HEAD
 import datetime
-
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils.translation import gettext as _
+
+from .validators import validate_me
 
 
 class Category(models.Model):
@@ -81,12 +84,6 @@ class GenreTitle(models.Model):
             UniqueConstraint(fields=['title', 'genre'],
                              name='unique_genre_title')
         ]
-=======
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.utils.translation import gettext as _
-
-from .validators import validate_me
 
 
 USER = _("user")
@@ -119,4 +116,3 @@ class CustomUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == DICT_ROLE[MODERATOR]
->>>>>>> feature/users
