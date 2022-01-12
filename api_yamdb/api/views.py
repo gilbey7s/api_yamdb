@@ -8,15 +8,20 @@ import random
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
-from reviews.models import CustomUser, Title, Genre, Category
+from reviews.models import Title, Genre, Category
 from .serializers import (
                     TitleSerializer, CategorySerializer,
                     GenreSerializer, SignupSerializer, 
                     CustomUsersSerializer, TokenSerializer
     )
 from .permission import IsAdmin
-from .pagination import Pagination
+
+
+User = get_user_model()
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -59,7 +64,7 @@ class APIgetToken(APIView):
         try:
             email = data.get('email')
             confirmation_code = data.get('confirmation_code')
-            user = get_object_or_404(CustomUser, email=email, confirmation_code=confirmation_code)
+            user = get_object_or_404(User, email=email, confirmation_code=confirmation_code)
             if user:
                 try:
                     token = RefreshToken.for_user(user).access_token
@@ -76,7 +81,21 @@ class APIgetToken(APIView):
 
 
 class APIusers(ModelViewSet):
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = CustomUsersSerializer
-    pagination_class = Pagination
     permission_classes = (IsAdmin,)
+    lookup_field = 'username'
+    search_fields = ('username',)
+
+    @action(detail=False, permission_classes=(IsAuthenticated,),
+            methods=['GET', 'PATCH'], url_path='me')
+    def get_or_patch_me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user, many=False)
+            return Response(serializer.data, status=HTTP_200_OK)
+        serializer = self.get_serializer(
+            instance=request.user,
+            data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role)
+        return Response(serializer.data, status=HTTP_200_OK)

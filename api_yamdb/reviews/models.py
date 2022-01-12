@@ -90,11 +90,11 @@ USER = _("user")
 MODERATOR = _("moderator")
 ADMIN = _("admin")
 
-DICT_ROLE = (
+DICT_ROLE = [
     (USER, _("user")),
     (MODERATOR, _("moderator")),
     (ADMIN, _("admin")),
-)
+]
 
 
 class CustomUser(AbstractUser):
@@ -107,12 +107,15 @@ class CustomUser(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == DICT_ROLE[USER]
+        return self.role == USER
 
     @property
     def is_admin(self):
-        return self.role == DICT_ROLE[ADMIN]
+        return self.role == ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
-        return self.role == DICT_ROLE[MODERATOR]
+        return self.role == MODERATOR
+
+    class Meta:
+        ordering = ['-username', ]

@@ -1,6 +1,9 @@
 from rest_framework import serializers
-from reviews.models import CustomUser, Title, Genre, Category
+from reviews.models import Title, Genre, Category
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class TitleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,13 +25,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('email', 'username',)
 
 
 class CustomUsersSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
 
@@ -36,5 +39,5 @@ class CustomUsersSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('username', 'confirmation_code')
