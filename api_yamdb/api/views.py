@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
@@ -15,11 +16,11 @@ from rest_framework.decorators import action
 from reviews.models import Title, Genre, Category, Review, Comment
 from .serializers import (
                     TitleSerializer, CategorySerializer,
-                    GenreSerializer, SignupSerializer, 
+                    GenreSerializer, SignupSerializer,
                     CustomUsersSerializer, TokenSerializer,
                     CommentSerializer, ReviewSerializer,
 )
-from .permissions import IsAdmin, ReviewCommentPermission
+from .permissions import IsAdmin, ReviewCommentPermission, ReadOnly
 from .pagination import ReviewsPagination, CommentsPagination
 
 
@@ -39,6 +40,12 @@ class GenreViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsAdmin,)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
