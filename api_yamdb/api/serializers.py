@@ -4,7 +4,7 @@ from reviews.models import CustomUser, Title, Genre, Category
 
 class TitleSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('category', 'genre', 'name', 'year')
+        fields = ('category', 'genres', 'name', 'year')
         model = Title
 
 

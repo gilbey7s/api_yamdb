@@ -15,7 +15,7 @@ from .serializers import (
                     GenreSerializer, SignupSerializer, 
                     CustomUsersSerializer, TokenSerializer
     )
-from .permission import IsAdmin
+from .permission import IsAdmin, ReadOnly
 from .pagination import Pagination
 
 
@@ -32,6 +32,12 @@ class GenreViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsAdmin,)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
 
 class APIsignup(APIView):

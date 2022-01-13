@@ -1,5 +1,4 @@
 import datetime
-from django.db import models
 from django.db.models import UniqueConstraint
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
@@ -107,12 +106,12 @@ class CustomUser(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == DICT_ROLE[USER]
+        return self.role == USER
 
     @property
     def is_admin(self):
-        return self.role == DICT_ROLE[ADMIN]
+        return self.role == ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == DICT_ROLE[MODERATOR]
+        return self.role == MODERATOR
