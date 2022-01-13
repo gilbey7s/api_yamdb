@@ -1,11 +1,45 @@
-<<<<<<< HEAD
-from reviews.models import Comment, Review
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
+from rest_framework.viewsets import ModelViewSet
+from django.core.mail import send_mail
+import random 
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
-from .serializers import CommentSerializer, ReviewSerializer
-from .permissions import ReviewCommentPermission
+from reviews.models import Title, Genre, Category, Review, Comment
+from .serializers import (
+                    TitleSerializer, CategorySerializer,
+                    GenreSerializer, SignupSerializer, 
+                    CustomUsersSerializer, TokenSerializer,
+                    CommentSerializer, ReviewSerializer,
+)
+from .permissions import IsAdmin, ReviewCommentPermission
 from .pagination import ReviewsPagination, CommentsPagination
+
+
+User = get_user_model()
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -14,7 +48,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
-        title = get_object_or_404(Title, id=title_id) #тайтл надо дописать
+        title = get_object_or_404(Title, id=title_id)
         return Review.objects.filter(title=title)
 
     def perform_create(self, serializer):
@@ -40,46 +74,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, pk=review_id, title__pk=title_id)
         serializer.save(author=self.request.user, review=review)
-=======
-from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
-from rest_framework.viewsets import  ModelViewSet
-from django.core.mail import send_mail
-import random 
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-
-from reviews.models import Title, Genre, Category
-from .serializers import (
-                    TitleSerializer, CategorySerializer,
-                    GenreSerializer, SignupSerializer, 
-                    CustomUsersSerializer, TokenSerializer
-    )
-from .permission import IsAdmin
-
-
-User = get_user_model()
-
-
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-
-
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
 
 class APIsignup(APIView):
@@ -92,7 +86,7 @@ class APIsignup(APIView):
         send_mail('Confirmation code',
             f'Your code for getting a token - {confirmation_code}.',
             settings.DEFAULT_EMAIL,
-            [email,],
+            [email, ],
             fail_silently=False,)
         serializer.save()
         return Response(serializer.validated_data, status=HTTP_200_OK)
@@ -142,4 +136,3 @@ class APIusers(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(role=request.user.role)
         return Response(serializer.data, status=HTTP_200_OK)
->>>>>>> c8090dd55aab208a1e0ef760ca2302fc289b218c

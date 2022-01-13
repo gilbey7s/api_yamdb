@@ -21,16 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
-    'rest_framework',
-    'rest_framework_simplejwt',
     'api',
+    'rest_framework_simplejwt',
     'reviews',
-=======
-    'api',
-    'rest_framework_simplejwt',
-    'reviews.apps.ReviewsConfig',
->>>>>>> c8090dd55aab208a1e0ef760ca2302fc289b218c
 ]
 
 MIDDLEWARE = [
