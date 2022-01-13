@@ -21,10 +21,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     'rest_framework',
     'rest_framework_simplejwt',
     'api',
     'reviews',
+=======
+    'api',
+    'rest_framework_simplejwt',
+    'reviews.apps.ReviewsConfig',
+>>>>>>> c8090dd55aab208a1e0ef760ca2302fc289b218c
 ]
 
 MIDDLEWARE = [
@@ -105,3 +111,21 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 4,
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
+AUTH_USER_MODEL = 'reviews.CustomUser'
+
+DEFAULT_EMAIL = 'ya@yandex.ru'
