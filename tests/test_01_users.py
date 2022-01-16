@@ -72,7 +72,7 @@ class Test01UserAPI:
             'Проверьте, что при GET запросе `/api/v1/users/` возвращаете данные с пагинацией. '
             'Значение параметра `count` не правильное'
         )
-        assert type(data['results']) == list, (
+        assert isinstance(data['results'], list), (
             'Проверьте, что при GET запросе `/api/v1/users/` возвращаете данные с пагинацией. '
             'Тип параметра `results` должен быть список'
         )
@@ -256,7 +256,8 @@ class Test01UserAPI:
             'role': 'user',
             'email': 'testuser3@yamdb.fake'
         }
-        response = user_superuser_client.post('/api/v1/users/', data=valid_data)
+        response = user_superuser_client.post(
+            '/api/v1/users/', data=valid_data)
         assert response.status_code == 201, (
             'Проверьте, что при POST запросе `/api/v1/users/` от суперпользователя, '
             'с правильными данными, возвращаете статус 201.'
@@ -329,7 +330,8 @@ class Test01UserAPI:
             'last_name': 'Test',
             'bio': 'description'
         }
-        response = admin_client.patch(f'/api/v1/users/{admin.username}/', data=data)
+        response = admin_client.patch(
+            f'/api/v1/users/{admin.username}/', data=data)
         assert response.status_code == 200, (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` '
             'с токеном авторизации возвращается статус 200'
@@ -341,12 +343,18 @@ class Test01UserAPI:
         assert test_admin.last_name == data['last_name'], (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` изменяете данные.'
         )
-        response = admin_client.patch(f'/api/v1/users/{user.username}/', data={'role': 'admin'})
+        response = admin_client.patch(
+            f'/api/v1/users/{user.username}/',
+            data={
+                'role': 'admin'})
         assert response.status_code == 200, (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` '
             'от пользователя с ролью admin можно изменить роль пользователя'
         )
-        response = admin_client.patch(f'/api/v1/users/{user.username}/', data={'role': 'owner'})
+        response = admin_client.patch(
+            f'/api/v1/users/{user.username}/',
+            data={
+                'role': 'owner'})
         assert response.status_code == 400, (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` '
             'от пользователя с ролью admin нельзя назначать произвольные роли пользователя'
@@ -354,13 +362,15 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_07_02_users_username_patch_moderator(self, moderator_client, user):
+    def test_07_02_users_username_patch_moderator(
+            self, moderator_client, user):
         data = {
             'first_name': 'New USer Firstname',
             'last_name': 'New USer Lastname',
             'bio': 'new user bio'
         }
-        response = moderator_client.patch(f'/api/v1/users/{user.username}/', data=data)
+        response = moderator_client.patch(
+            f'/api/v1/users/{user.username}/', data=data)
         assert response.status_code == 403, (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` '
             'пользователь с ролью moderator не может изменять данные других пользователей'
@@ -373,7 +383,8 @@ class Test01UserAPI:
             'last_name': 'New USer Lastname',
             'bio': 'new user bio'
         }
-        response = user_client.patch(f'/api/v1/users/{user.username}/', data=data)
+        response = user_client.patch(
+            f'/api/v1/users/{user.username}/', data=data)
         assert response.status_code == 403, (
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` '
             'пользователь с ролью user не может изменять данные других пользователей'
@@ -386,7 +397,8 @@ class Test01UserAPI:
             'last_name': 'New USer Lastname',
             'bio': 'new user bio'
         }
-        response = user_client.put(f'/api/v1/users/{user.username}/', data=data)
+        response = user_client.put(
+            f'/api/v1/users/{user.username}/', data=data)
         code = 403
         assert response.status_code == code, (
             'Проверьте, что PUT запрос на `/api/v1/users/{username}/` '
@@ -405,7 +417,8 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_08_02_users_username_delete_moderator(self, moderator_client, user):
+    def test_08_02_users_username_delete_moderator(
+            self, moderator_client, user):
         users_before = get_user_model().objects.count()
         response = moderator_client.delete(f'/api/v1/users/{user.username}/')
         assert response.status_code == 403, (
@@ -431,9 +444,11 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_08_04_users_username_delete_superuser(self, user_superuser_client, user):
+    def test_08_04_users_username_delete_superuser(
+            self, user_superuser_client, user):
         users_before = get_user_model().objects.count()
-        response = user_superuser_client.delete(f'/api/v1/users/{user.username}/')
+        response = user_superuser_client.delete(
+            f'/api/v1/users/{user.username}/')
         code = 204
         assert response.status_code == code, (
             'Проверьте, что при DELETE запросе `/api/v1/users/{username}/` '
@@ -472,7 +487,8 @@ class Test01UserAPI:
             'last_name': 'Test',
             'bio': 'description'
         }
-        response = client_user.patch(f'/api/v1/users/{admin.username}/', data=data)
+        response = client_user.patch(
+            f'/api/v1/users/{admin.username}/', data=data)
         assert response.status_code == 403, (
             f'Проверьте, что при PATCH запросе `/api/v1/users/{{username}}/` '
             f'с токеном авторизации {user_name} возвращается статус 403'
@@ -540,7 +556,10 @@ class Test01UserAPI:
             'Проверьте, что при PATCH запросе `/api/v1/users/me/` изменяете данные'
         )
         client_user = auth_client(moderator)
-        response = client_user.patch('/api/v1/users/me/', data={'first_name': 'NewTest'})
+        response = client_user.patch(
+            '/api/v1/users/me/',
+            data={
+                'first_name': 'NewTest'})
         test_moderator = get_user_model().objects.get(username=moderator.username)
         assert response.status_code == 200, (
             'Проверьте, что при PATCH запросе `/api/v1/users/me/` с токеном авторизации возвращается статус 200'

@@ -1,29 +1,29 @@
-from rest_framework import viewsets, filters
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
-from rest_framework.viewsets import ModelViewSet
-from django.core.mail import send_mail
-from django.db.models import Avg
 import random
-from django_filters import rest_framework as DjangoFilterBackend
+
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
+from django.core.validators import ValidationError
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters import rest_framework as DjangoFilterBackend
+from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_403_FORBIDDEN)
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Category, Comment, Genre, Review, Title
 
-from reviews.models import Title, Genre, Category, Review, Comment
-from .serializers import (
-                    TitleSerializer, CategorySerializer,
-                    GenreSerializer, SignupSerializer, 
-                    CustomUsersSerializer, TokenSerializer,
-                    CommentSerializer, ReviewSerializer,
-)
-from .permissions import IsAdmin, ReviewCommentPermission, ReadOnlyPermission
-from .pagination import ReviewsPagination, CommentsPagination
-
+from .pagination import CommentsPagination, ReviewsPagination
+from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission
+from .serializers import (CategorySerializer, CommentSerializer,
+                          CustomUsersSerializer, GenreSerializer,
+                          ReviewSerializer, SignupSerializer, TitleSerializer,
+                          TokenSerializer)
 
 User = get_user_model()
 
@@ -36,10 +36,10 @@ class APIsignup(APIView):
         email = data.get('email')
         confirmation_code = random.randint(100000, 999999)
         send_mail('Confirmation code',
-            f'Your code for getting a token - {confirmation_code}.',
-            settings.DEFAULT_EMAIL,
-            [email, ],
-            fail_silently=False,)
+                  f'Your code for getting a token - {confirmation_code}.',
+                  settings.DEFAULT_EMAIL,
+                  [email, ],
+                  fail_silently=False,)
         serializer.save()
         return Response(serializer.validated_data, status=HTTP_200_OK)
 
@@ -53,11 +53,13 @@ class APIgetToken(APIView):
         try:
             email = data.get('email')
             confirmation_code = data.get('confirmation_code')
-            user = get_object_or_404(User, email=email, confirmation_code=confirmation_code)
+            user = get_object_or_404(
+                User, email=email, confirmation_code=confirmation_code)
             if user:
                 try:
                     token = RefreshToken.for_user(user).access_token
-                    return Response({'token': str(token)}, status=HTTP_201_CREATED)
+                    return Response({'token': str(token)},
+                                    status=HTTP_201_CREATED)
                 except Exception as error:
                     raise error
             else:
@@ -65,7 +67,8 @@ class APIgetToken(APIView):
                     'error': 'Can not authenticate with the given credentials'}
                 return Response(result, status=HTTP_403_FORBIDDEN)
         except KeyError:
-            result = {'error': 'Please provide a email and a confirmation code'}
+            result = {
+                'error': 'Please provide a email and a confirmation code'}
             return Response(result)
 
 
@@ -156,6 +159,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, pk=review_id, title__pk=title_id)
         serializer.save(author=self.request.user, review=review)
-
-
-
