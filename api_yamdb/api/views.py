@@ -1,10 +1,12 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
 from rest_framework.viewsets import ModelViewSet
 from django.core.mail import send_mail
-import random 
+from django.db.models import Avg
+import random
+from django_filters import rest_framework as DjangoFilterBackend
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,61 +21,11 @@ from .serializers import (
                     CustomUsersSerializer, TokenSerializer,
                     CommentSerializer, ReviewSerializer,
 )
-from .permissions import IsAdmin, ReviewCommentPermission
+from .permissions import IsAdmin, ReviewCommentPermission, ReadOnlyPermission
 from .pagination import ReviewsPagination, CommentsPagination
 
 
 User = get_user_model()
-
-
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-
-
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    permission_classes = ReviewCommentPermission
-    pagination_class = ReviewsPagination
-
-    def get_queryset(self):
-        title_id = self.kwargs.get("title_id")
-        title = get_object_or_404(Title, id=title_id)
-        return Review.objects.filter(title=title)
-
-    def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
-        if Review.objects.filter(
-                author=self.request.user, title=title).exists():
-            raise ValidationError("Вы уже оставляли отзыв на это произведение")
-        serializer.save(author=self.request.user, title=title)
-
-
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
-    permission_classes = [ReviewCommentPermission]
-    pagination_class = CommentsPagination
-
-    def get_queryset(self):
-        review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, pk=review_id)
-        return Comment.objects.filter(review=review)
-
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get("title_id")
-        review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, pk=review_id, title__pk=title_id)
-        serializer.save(author=self.request.user, review=review)
 
 
 class APIsignup(APIView):
@@ -136,3 +88,74 @@ class APIusers(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(role=request.user.role)
         return Response(serializer.data, status=HTTP_200_OK)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleSerializer
+    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        'category',
+        'genre',
+        'name',
+        'year',
+    )
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_fields = ('name',)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_fields = ('name',)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = ReviewCommentPermission
+    pagination_class = ReviewsPagination
+
+    def get_queryset(self):
+        title_id = self.kwargs.get("title_id")
+        title = get_object_or_404(Title, id=title_id)
+        return Review.objects.filter(title=title)
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
+        if Review.objects.filter(
+                author=self.request.user, title=title).exists():
+            raise ValidationError("Вы уже оставляли отзыв на это произведение")
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [ReviewCommentPermission]
+    pagination_class = CommentsPagination
+
+    def get_queryset(self):
+        review_id = self.kwargs.get("review_id")
+        review = get_object_or_404(Review, pk=review_id)
+        return Comment.objects.filter(review=review)
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get("title_id")
+        review_id = self.kwargs.get("review_id")
+        review = get_object_or_404(Review, pk=review_id, title__pk=title_id)
+        serializer.save(author=self.request.user, review=review)
+
+
+
