@@ -125,3 +125,6 @@ DEFAULT_EMAIL = 'ya@yandex.ru'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+# The absolute path to the CSV file directory, for importing with the management command
+PATH_IMPORT_CSV = "api_yamdb/static/data/"
