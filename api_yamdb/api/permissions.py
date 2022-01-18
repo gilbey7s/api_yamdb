@@ -31,4 +31,19 @@ class ReadOnlyPermission(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Permission only for moderator or admin to create or delete object.
+    """
+
+    message = "Access only for moderator or admin!"
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return request.method in permissions.SAFE_METHODS
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_admin
+                )
+
+
 

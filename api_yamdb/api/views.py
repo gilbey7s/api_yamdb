@@ -1,5 +1,4 @@
 import random
-import django_filters
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -19,9 +18,10 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Comment, Genre, Review, Title
 from rest_framework.exceptions import MethodNotAllowed
+from .filters import TitleFilter
 
-from .pagination import CommentsPagination, ReviewsPagination
-from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission
+from .pagination import CommentsPagination, ReviewsPagination, TitlesPagination
+from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission, IsAdminOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUsersSerializer, GenreSerializer,
                           ReviewSerializer, SignupSerializer, TitleSerializer,
@@ -31,16 +31,9 @@ from .serializers import (CategorySerializer, CommentSerializer,
 User = get_user_model()
 
 
-
 from reviews.models import Category, Genre, Title
 
 
-class TitleFilter(django_filters.FilterSet):
-    genre = django_filters.ModelMultipleChoiceFilter(
-        field_name='genre__slug',
-        to_field_name='slug',
-        queryset=Genre.objects.all(),
-    )
 class APIsignup(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -111,12 +104,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (ReadOnlyPermission | IsAdmin,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category',
-        'genre',
-        'name',
-        'year',
-    )
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action == 'retrieve' or self.action == 'list':
@@ -127,11 +115,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (ReadOnlyPermission | IsAdmin,)
     filter_backends = (filters.SearchFilter,)
-    filterset_fields = ('name',)
-    search_fields = ('name',)
-    lookup_field = 'slug'
+    search_fields = ("name",)
+    lookup_field = "slug"
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = TitlesPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

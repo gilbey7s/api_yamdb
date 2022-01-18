@@ -24,5 +24,4 @@ urlpatterns = [
     path('v1/', include(router_v1.urls)),
     path('v1/auth/token/', APIgetToken.as_view(), name='token'),
     path('v1/auth/signup/', APIsignup.as_view(), name='signup'),
-    path('v1/', include(router_v1.urls)),
 ]
