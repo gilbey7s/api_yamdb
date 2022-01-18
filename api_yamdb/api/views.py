@@ -131,9 +131,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (ReadOnlyPermission | IsAdmin,)
     filter_backends = (DjangoFilterBackend,)
+    print(Title.objects.get(id=1).genre)
     filterset_fields = (
         'category',
-        'genre__slug',
+        'genre',
         'name',
         'year',
     )
@@ -143,10 +144,11 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleReadSerializer
         return TitleWriteSerializer
 
+
 class Genres(generics.ListCreateAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdmin | ReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
@@ -178,7 +180,7 @@ class CategoryDetail(generics.DestroyAPIView):
     permission_classes = (IsAdmin,)
 
     def get_object(self):
-        queryset = get_object_or_404(Category,slug=self.kwargs.get('slug'))
+        queryset = get_object_or_404(Category, slug=self.kwargs.get('slug'))
         return queryset
 
     def destroy(self, request, *args, **kwargs):
