@@ -42,27 +42,6 @@ from .serializers import (CategorySerializer, CommentSerializer,
 User = get_user_model()
 
 
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-
-
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = (IsAdmin,)
-
-    def get_permissions(self):
-        if self.action == 'list':
-            return (ReadOnlyPermission,)
-        return super().get_permissions()
-
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = ReviewCommentPermission
@@ -154,7 +133,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
         'category',
-        'genre',
+        'genre__slug',
         'name',
         'year',
     )
