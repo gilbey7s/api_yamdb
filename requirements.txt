@@ -6,3 +6,10 @@ pytest==6.2.4
 pytest-django==4.4.0
 pytest-pythonpath==0.7.3
 djangorestframework-simplejwt
+django-filter
+Autopep8 #autopep8 ./ --recursive --in-place -a
+isort #isort .
+Black #black --line-length 78 example.py
+autoflake # autoflake --in-place --remove-all-unused-imports --remove-unused-variables -r ./
+unify #unify --in-place -r .
+coverage #coverage run --source='posts,users' manage.py test -v 2

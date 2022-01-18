@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework_simplejwt',
     'reviews',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -108,7 +109,6 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 4,
@@ -122,3 +122,9 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'reviews.CustomUser'
 
 DEFAULT_EMAIL = 'ya@yandex.ru'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+# The absolute path to the CSV file directory, for importing with the management command
+PATH_IMPORT_CSV = "api_yamdb/static/data/"

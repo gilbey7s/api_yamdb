@@ -1,8 +1,9 @@
 import datetime
-from django.db.models import UniqueConstraint
-from django.core.validators import MinValueValidator, MaxValueValidator
+
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.utils.translation import gettext as _
 
 from .validators import validate_me
@@ -55,6 +56,10 @@ class Title(models.Model):
         related_name='titles',
         verbose_name='категория'
     )
+    genre = models.ManyToManyField(
+        Genre,
+        through="GenreTitle",
+    )
 
     class Meta:
         verbose_name = 'произведение'
@@ -100,9 +105,22 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(_("email address"), unique=True, max_length=254,)
     bio = models.TextField(_("biography"), blank=True,)
-    role = models.CharField(_("user role"), max_length=16, choices=DICT_ROLE, default=USER, blank=True,)
+    role = models.CharField(
+        _("user role"),
+        max_length=16,
+        choices=DICT_ROLE,
+        default=USER,
+        blank=True,
+    )
     confirmation_code = models.IntegerField(_("code"), default=0,)
-    username = models.CharField(_("username"), validators=(validate_me,), unique=True, max_length=150,)
+    username = models.CharField(
+        _("username"),
+        validators=(
+            validate_me,
+        ),
+        unique=True,
+        max_length=150,
+    )
 
     @property
     def is_user(self):
