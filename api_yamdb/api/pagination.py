@@ -7,3 +7,7 @@ class ReviewsPagination(PageNumberPagination):
 
 class CommentsPagination(PageNumberPagination):
     page_size = 8
+
+
+class TitlesPagination(PageNumberPagination):
+    page_size = 20

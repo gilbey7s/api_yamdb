@@ -30,4 +30,5 @@ urlpatterns = [
     path('v1/genres/', Genres.as_view(), name='genres'),
     path('v1/genres/<slug>/', GenreDetail.as_view(), name='genre'),
     path('v1/', include(router_v1.urls)),
+
 ]
