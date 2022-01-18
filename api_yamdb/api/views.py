@@ -1,5 +1,5 @@
 import django_filters
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -143,24 +143,65 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleReadSerializer
         return TitleWriteSerializer
 
-
-class GenreViewSet(viewsets.ModelViewSet):
+class Genres(generics.ListCreateAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
-    filterset_fields = ('name',)
     search_fields = ('name',)
-    lookup_field = 'slug'
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class GenreDetail(generics.DestroyAPIView):
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdmin,)
+
+    def get_object(self):
+        queryset = get_object_or_404(Genre, slug=self.kwargs.get('slug'))
+        return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class Categories(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    permission_classes = (IsAdmin | ReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    lookup_field = 'slug'
+
+
+class CategoryDetail(generics.DestroyAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdmin,)
+
+    def get_object(self):
+        queryset = get_object_or_404(Category,slug=self.kwargs.get('slug'))
+        return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+# class GenreViewSet(viewsets.ModelViewSet):
+#     queryset = Genre.objects.all()
+#     serializer_class = GenreSerializer
+#     permission_classes = (ReadOnlyPermission | IsAdmin,)
+#     filter_backends = (filters.SearchFilter,)
+#     filterset_fields = ('name',)
+#     search_fields = ('name',)
+#     lookup_field = 'slug'
+#
+#
+# class CategoryViewSet(viewsets.ModelViewSet):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+#     permission_classes = (ReadOnlyPermission | IsAdmin,)
+#     filter_backends = (filters.SearchFilter,)
+#     search_fields = ('name',)
+#     lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
