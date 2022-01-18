@@ -1,4 +1,5 @@
 import random
+import django_filters
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -30,6 +31,16 @@ from .serializers import (CategorySerializer, CommentSerializer,
 User = get_user_model()
 
 
+
+from reviews.models import Category, Genre, Title
+
+
+class TitleFilter(django_filters.FilterSet):
+    genre = django_filters.ModelMultipleChoiceFilter(
+        field_name='genre__slug',
+        to_field_name='slug',
+        queryset=Genre.objects.all(),
+    )
 class APIsignup(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -126,7 +137,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (ReadOnlyPermission | IsAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
