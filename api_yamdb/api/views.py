@@ -23,7 +23,7 @@ from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUsersSerializer, GenreSerializer,
                           ReviewSerializer, SignupSerializer, TitleSerializer,
-                          TokenSerializer)
+                          TokenSerializer, TitleWriteSerializer)
 
 User = get_user_model()
 
@@ -104,6 +104,11 @@ class TitleViewSet(viewsets.ModelViewSet):
         'name',
         'year',
     )
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):
