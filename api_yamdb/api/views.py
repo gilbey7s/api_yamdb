@@ -23,7 +23,8 @@ from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUsersSerializer, GenreSerializer,
                           ReviewSerializer, SignupSerializer, TitleSerializer,
-                          TokenSerializer, TitleWriteSerializer)
+                          TokenSerializer, TitleWriteSerializer, ReviewCreateSerializer,
+                          TitleReadSerializer,)
 
 User = get_user_model()
 
@@ -147,6 +148,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
                 author=self.request.user, title=title).exists():
             raise ValidationError("Вы уже оставляли отзыв на это произведение")
         serializer.save(author=self.request.user, title=title)
+
+    def get_permissions(self):
+        if self.action == 'update':
+            raise MethodNotAllowed('PUT request is not allowed')
+        return super().get_permissions()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return ReviewCreateSerializer
+        return ReviewSerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
