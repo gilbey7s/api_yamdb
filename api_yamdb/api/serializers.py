@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 from rest_framework.relations import SlugRelatedField
+from rest_framework.generics import get_object_or_404
 
 User = get_user_model()
 
@@ -122,10 +123,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
-        title = get_object_or_404(
-            Title,
-            id=self.context['request'].parser_context['kwargs']['title_id']
-        )
+        title = get_object_or_404(Title, id=self.context['request'].parser_context['kwargs']['title_id'])
         author = self.context['request'].user
         if Review.objects.filter(title=title, author=author).exists():
             raise serializers.ValidationError('один автор - одно'

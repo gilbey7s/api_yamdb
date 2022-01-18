@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.core.validators import ValidationError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from django_filters import rest_framework as DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Comment, Genre, Review, Title
+from rest_framework.exceptions import MethodNotAllowed
 
 from .pagination import CommentsPagination, ReviewsPagination
 from .permissions import IsAdmin, ReadOnlyPermission, ReviewCommentPermission
@@ -116,7 +117,7 @@ class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (ReadOnlyPermission | IsAdmin,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (filters.SearchFilter,)
     filterset_fields = ('name',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -126,15 +127,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (ReadOnlyPermission | IsAdmin,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ('name',)
+    filter_backends = (filters.SearchFilter)
     search_fields = ('name',)
     lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = ReviewCommentPermission
+    permission_classes = (ReviewCommentPermission,)
     pagination_class = ReviewsPagination
 
     def get_queryset(self):
@@ -162,7 +162,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [ReviewCommentPermission]
+    permission_classes = (ReviewCommentPermission,)
     pagination_class = CommentsPagination
 
     def get_queryset(self):
