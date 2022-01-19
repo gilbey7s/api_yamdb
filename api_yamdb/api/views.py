@@ -12,14 +12,12 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_403_FORBIDDEN)
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Comment, Genre, Review, Title
-
 from .filters import TitleFilter
 from .pagination import CommentsPagination, ReviewsPagination, TitlesPagination
 from .permissions import (IsAdmin, IsAdminOrReadOnly, ReadOnlyPermission,
@@ -67,29 +65,16 @@ class APIgetToken(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        try:
-            email = data.get('email')
-            confirmation_code = data.get('confirmation_code')
-            user = get_object_or_404(
-                User, email=email, confirmation_code=confirmation_code)
-            if user:
-                try:
-                    token = RefreshToken.for_user(user).access_token
-                    return Response({'token': str(token)},
-                                    status=HTTP_201_CREATED)
-                except Exception as error:
-                    raise error
-            else:
-                result = {
-                    'error': 'Can not authenticate with the given credentials'}
-                return Response(result, status=HTTP_403_FORBIDDEN)
-        except KeyError:
-            result = {
-                'error': 'Please provide a email and a confirmation code'}
-            return Response(result)
+        email = data.get('email')
+        confirmation_code = data.get('confirmation_code')
+        user = get_object_or_404(
+            User, email=email, confirmation_code=confirmation_code)
+        token = RefreshToken.for_user(user).access_token
+        return Response({'token': str(token)},
+                        status=HTTP_200_OK)
 
 
-class APIusers(ModelViewSet):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUsersSerializer
     permission_classes = (IsAdmin,)
