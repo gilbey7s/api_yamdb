@@ -131,7 +131,7 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 DEFAULT_EMAIL = 'ya@ya.ru'
 
-#Настройка SMTP
+# Настройка SMTP
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_HOST_USER = DEFAULT_EMAIL
 EMAIL_HOST_PASSWORD = ''

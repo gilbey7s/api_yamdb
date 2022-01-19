@@ -114,6 +114,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         )
         model = Title
 
+
 class ReviewCreateSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True,
                               default=serializers.CurrentUserDefault())
@@ -123,7 +124,10 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
-        title = get_object_or_404(Title, id=self.context['request'].parser_context['kwargs']['title_id'])
+        title = get_object_or_404(
+            Title,
+            id=self.context['request'].parser_context['kwargs']['title_id']
+        )
         author = self.context['request'].user
         if Review.objects.filter(title=title, author=author).exists():
             raise serializers.ValidationError('один автор - одно'
