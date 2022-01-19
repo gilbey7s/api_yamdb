@@ -121,10 +121,19 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'reviews.CustomUser'
 
-DEFAULT_EMAIL = 'ya@yandex.ru'
-
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 # The absolute path to the CSV file directory, for importing with the management command
 PATH_IMPORT_CSV = "api_yamdb/static/data/"
+
+# Email
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+DEFAULT_EMAIL = 'ya@ya.ru'
+
+#Настройка SMTP
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_HOST_USER = DEFAULT_EMAIL
+EMAIL_HOST_PASSWORD = ''
+# EMAIL_PORT = 465
+EMAIL_USE_TLS = True
