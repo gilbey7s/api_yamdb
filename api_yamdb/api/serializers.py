@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
-from rest_framework.relations import SlugRelatedField
 from rest_framework.generics import get_object_or_404
+from rest_framework.relations import SlugRelatedField
+
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 

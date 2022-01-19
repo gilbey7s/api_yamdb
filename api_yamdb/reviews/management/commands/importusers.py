@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
 import csv
-from django.conf import settings
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
 
 User = get_user_model()
 
@@ -20,8 +20,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file = options['-file']
-        with open(f'{settings.PATH_IMPORT_CSV}{file}') as File:
-            reader = csv.DictReader(File)
+        with open(f'{settings.PATH_IMPORT_CSV}{file}') as file:
+            reader = csv.DictReader(file)
             for row in reader:
                 user_create = User.objects.get_or_create(
                     email=row['email'],

@@ -1,6 +1,5 @@
-from rest_framework import generics, status
-from rest_framework.exceptions import ValidationError
 import random
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
@@ -8,30 +7,29 @@ from django.core.validators import ValidationError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import filters, generics, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_200_OK, HTTP_201_CREATED,
-    HTTP_403_FORBIDDEN)
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_403_FORBIDDEN)
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import MethodNotAllowed
+
+from reviews.models import Category, Comment, Genre, Review, Title
 
 from .filters import TitleFilter
-from reviews.models import Title, Genre, Category, Review, Comment
 from .pagination import CommentsPagination, ReviewsPagination, TitlesPagination
-from .permissions import (
-    IsAdmin, ReadOnlyPermission,
-    ReviewCommentPermission, IsAdminOrReadOnly)
-from .serializers import (
-    CategorySerializer, CommentSerializer,
-    CustomUsersSerializer, GenreSerializer,
-    ReviewSerializer, SignupSerializer, TitleSerializer,
-    TokenSerializer, TitleWriteSerializer, ReviewCreateSerializer,
-    TitleReadSerializer,)
+from .permissions import (IsAdmin, IsAdminOrReadOnly, ReadOnlyPermission,
+                          ReviewCommentPermission)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          CustomUsersSerializer, GenreSerializer,
+                          ReviewCreateSerializer, ReviewSerializer,
+                          SignupSerializer, TitleReadSerializer,
+                          TitleSerializer, TitleWriteSerializer,
+                          TokenSerializer)
 
 User = get_user_model()
 
@@ -147,8 +145,7 @@ class GenreDetail(generics.DestroyAPIView):
     permission_classes = (IsAdmin,)
 
     def get_object(self):
-        queryset = get_object_or_404(Genre, slug=self.kwargs.get('slug'))
-        return queryset
+        return get_object_or_404(Genre, slug=self.kwargs.get('slug'))
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -169,8 +166,7 @@ class CategoryDetail(generics.DestroyAPIView):
     permission_classes = (IsAdmin,)
 
     def get_object(self):
-        queryset = get_object_or_404(Category, slug=self.kwargs.get('slug'))
-        return queryset
+        return get_object_or_404(Category, slug=self.kwargs.get('slug'))
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
