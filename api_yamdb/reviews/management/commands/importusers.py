@@ -8,19 +8,24 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Imports users from a csv file. In django settings,\
-        specify the absolute path PATH_IMPORT_CSV to the directory with csv files.\
-        Example -  PATH_IMPORT_CSV = "api_yamdb/static/data/"'
+    help = ('Imports users from a csv file. In django settings,'
+            'specify the absolute path'
+            'PATH_IMPORT_CSV to the directory with csv files.'
+            'Example -  PATH_IMPORT_CSV = "api_yamdb/static/data/"')
 
     def add_arguments(self, parser):
-        parser.add_argument('-file', type=str, help='csv file name - (for example.csv)')
+        parser.add_argument(
+            '-file', type=str,
+            help='csv file name - (for example.csv)')
 
     def handle(self, *args, **options):
         file = options['-file']
-        with open(f'{settings.PATH_IMPORT_CSV}{file}') as File:  
+        with open(f'{settings.PATH_IMPORT_CSV}{file}') as File:
             reader = csv.DictReader(File)
             for row in reader:
-                user_create = User.objects.get_or_create(email=row['email'], username=row['username'])
+                user_create = User.objects.get_or_create(
+                    email=row['email'],
+                    username=row['username'])
                 if user_create[1]:
                     print(f"{user_create} - user was created successfully")
                 else:
