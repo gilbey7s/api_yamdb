@@ -19,6 +19,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
+        ordering = ['-name']
 
     def __str__(self):
         return self.name
@@ -34,6 +35,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
+        ordering = ['-name']
 
     def __str__(self):
         return self.name

@@ -111,7 +111,8 @@ class APIusers(ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score')
+                                            ).order_by('-name')
     serializer_class = TitleSerializer
     permission_classes = (ReadOnlyPermission | IsAdmin,)
     filter_backends = (DjangoFilterBackend,)
