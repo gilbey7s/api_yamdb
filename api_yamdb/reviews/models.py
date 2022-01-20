@@ -136,7 +136,7 @@ class CustomUser(AbstractUser):
 
 
 class Review(models.Model):
-    text = models.TextField(null=False, verbose_name="Отзыв")
+    text = models.TextField(verbose_name="Отзыв")
     author = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name='reviews')
     pub_date = models.DateTimeField(
