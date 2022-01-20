@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -113,6 +115,13 @@ class TitleWriteSerializer(serializers.ModelSerializer):
             'rating'
         )
         model = Title
+
+    def validate(self, data):
+        if 'year' in data:
+            if data.get('year') > datetime.now().year:
+                raise serializers.ValidationError('Год произведения не должен'
+                                                  ' превышать текущий.')
+        return data
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):

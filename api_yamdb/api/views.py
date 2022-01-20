@@ -7,7 +7,8 @@ from django.core.validators import ValidationError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, status, viewsets
+from rest_framework import filters, viewsets
+from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -115,7 +116,13 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleWriteSerializer
 
 
-class Genres(generics.ListCreateAPIView):
+class CreateListDestroyVieSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
+    pass
+
+
+class GenreViewSet(CreateListDestroyVieSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -125,39 +132,21 @@ class Genres(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = TitlesPagination
 
-
-class GenreDetail(generics.DestroyAPIView):
-    serializer_class = GenreSerializer
-    permission_classes = (IsAdmin,)
-
     def get_object(self):
         return get_object_or_404(Genre, slug=self.kwargs.get('slug'))
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-class Categories(generics.ListCreateAPIView):
+class CategoryViewSet(CreateListDestroyVieSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdmin | ReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-
-
-class CategoryDetail(generics.DestroyAPIView):
-    serializer_class = CategorySerializer
-    permission_classes = (IsAdmin,)
+    lookup_field = "slug"
+    pagination_class = TitlesPagination
 
     def get_object(self):
         return get_object_or_404(Category, slug=self.kwargs.get('slug'))
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
