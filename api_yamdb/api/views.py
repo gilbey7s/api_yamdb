@@ -9,14 +9,13 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title
 
 from .filters import TitleFilter
 from .pagination import CommentsPagination, ReviewsPagination, TitlesPagination

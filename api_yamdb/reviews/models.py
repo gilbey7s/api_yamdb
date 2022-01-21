@@ -138,7 +138,8 @@ class GenreTitle(models.Model):
 class Review(models.Model):
     text = models.TextField(verbose_name="Отзыв")
     author = models.ForeignKey(
-        CustomUser, null=True, blank=True, on_delete=models.CASCADE, related_name='reviews')
+        CustomUser, null=True, blank=True,
+        on_delete=models.CASCADE, related_name='reviews')
     pub_date = models.DateTimeField(
         verbose_name="Дата публикации",
         auto_now_add=True
