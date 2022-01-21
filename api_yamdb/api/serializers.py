@@ -2,8 +2,9 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
+from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title
-from rest_framework.validators import UniqueTogetherValidator
 
 User = get_user_model()
 
@@ -124,18 +125,20 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username',
-        default=serializers.CurrentUserDefault())
-    title = serializers.SlugRelatedField(
-        read_only=True, slug_field='id', default=serializers.CurrentUserDefault())
+    author = SlugRelatedField(slug_field='username', read_only=True,
+                              default=serializers.CurrentUserDefault())
 
     class Meta:
+        fields = ('id', 'author', 'text', 'score', 'pub_date')
         model = Review
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['author', 'title']
-            )
-        ]
+
+    def validate(self, data):
+        title = get_object_or_404(
+            Title,
+            id=self.context['request'].parser_context['kwargs']['title_id']
+        )
+        author = self.context['request'].user
+        if Review.objects.filter(title=title, author=author).exists():
+            raise serializers.ValidationError('один автор - одно'
+                                              'произведение-одно ревью!')
+        return data
