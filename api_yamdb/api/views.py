@@ -43,6 +43,9 @@ class APIsignup(APIView):
                   [email, ],
                   fail_silently=False,)
         serializer.save()
+        user = User.objects.get(email=email)
+        user.confirmation_code = confirmation_code
+        user.save()
         return Response(serializer.validated_data, status=HTTP_200_OK)
 
 

@@ -2,36 +2,35 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
-from django.utils.translation import gettext as _
 
 from .validators import validate_me
 
 
-USER = _("user")
-MODERATOR = _("moderator")
-ADMIN = _("admin")
+USER = "user"
+MODERATOR = "moderator"
+ADMIN = "admin"
 
 DICT_ROLE = [
-    (USER, _("user")),
-    (MODERATOR, _("moderator")),
-    (ADMIN, _("admin")),
+    (USER, "user"),
+    (MODERATOR, "moderator"),
+    (ADMIN, "admin"),
 ]
 
 
 class CustomUser(AbstractUser):
 
-    email = models.EmailField(_("email address"), unique=True, max_length=254,)
-    bio = models.TextField(_("biography"), blank=True,)
+    email = models.EmailField("email address", unique=True, max_length=254,)
+    bio = models.TextField("biography", blank=True,)
     role = models.CharField(
-        _("user role"),
+        "user role",
         max_length=16,
         choices=DICT_ROLE,
         default=USER,
         blank=True,
     )
-    confirmation_code = models.IntegerField(_("code"), default=0,)
+    confirmation_code = models.IntegerField("code", default=0,)
     username = models.CharField(
-        _("username"),
+        "username",
         validators=(
             validate_me,
         ),
@@ -138,7 +137,7 @@ class GenreTitle(models.Model):
 class Review(models.Model):
     text = models.TextField(verbose_name="Отзыв")
     author = models.ForeignKey(
-        CustomUser, null=True, blank=True,
+        CustomUser,
         on_delete=models.CASCADE, related_name='reviews')
     pub_date = models.DateTimeField(
         verbose_name="Дата публикации",

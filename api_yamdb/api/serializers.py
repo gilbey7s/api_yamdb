@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
+
 from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
@@ -116,12 +117,11 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         )
         model = Title
 
-    def validate(self, data):
-        if 'year' in data:
-            if data.get('year') > datetime.now().year:
-                raise serializers.ValidationError('Год произведения не должен'
-                                                  ' превышать текущий.')
-        return data
+    def validate_year(self, value):
+        if value > datetime.now().year:
+            raise serializers.ValidationError('Год произведения не должен'
+                                              ' превышать текущий.')
+        return value
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):

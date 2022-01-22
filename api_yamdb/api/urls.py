@@ -4,10 +4,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (APIgetToken, APIsignup, CategoryViewSet, CommentViewSet,
                     GenreViewSet, ReviewViewSet, TitleViewSet, UserViewSet)
 
+
 router_v1 = DefaultRouter()
 
 app_name = 'api'
-
 
 router_v1.register('titles', TitleViewSet, basename='titles')
 router_v1.register('users', UserViewSet, basename='users')
@@ -21,10 +21,11 @@ router_v1.register(
     CommentViewSet,
     basename="comments",
 )
+auth = [
+    path('token/', APIgetToken.as_view(), name='token'),
+    path('signup/', APIsignup.as_view(), name='signup'),
+]
 urlpatterns = [
-
-    path('v1/auth/token/', APIgetToken.as_view(), name='token'),
-    path('v1/auth/signup/', APIsignup.as_view(), name='signup'),
+    path('v1/auth/', include(auth)),
     path('v1/', include(router_v1.urls)),
-
 ]
